@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import cardImage from './img/products/bio-broccoli.jpg';
 import './styles/app.css';
 
 class App extends Component {
@@ -7,7 +7,10 @@ class App extends Component {
     return (
       <div className="card">
           <div className="card-content">
-              <div className="card-title"></div>
+              <div className="card-image">
+                  <img src={cardImage} alt="AH Biologische broccoli" />
+              </div>
+              <div className="card-title">AH Biologische broccoli</div>
           </div>
       </div>
     );
