@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
-import Card from './components/card/card';
+import Product from './components/product/product';
 import './styles/app.css';
 
 class App extends Component {
   render() {
     return (
-        <div>
-            <Card/>
+        <div className="lane">
+            <div className="card">
+                <Product />
+            </div>
         </div>
     );
   }
