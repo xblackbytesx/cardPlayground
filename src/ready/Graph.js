@@ -145,7 +145,7 @@ class Graph extends Component {
                 },
                 onClick: (event, point) => {
                   let hash = point.datum.gitHash;
-                  let url = `https://stash/commit/${hash}`;
+                  let url = `https://https://github.com/xblackbytesx/cardPlayground/commit/${hash}`;
                   window.open(url);
                 }
               }
