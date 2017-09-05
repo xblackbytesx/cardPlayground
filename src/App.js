@@ -7,6 +7,8 @@ import PlusButton from './components/controls/plus.button';
 import MinButton from './components/controls/min.button';
 import {Quantity} from './components/controls/quantity';
 
+import MediaQuery from './utils/media-query';
+
 class App extends Component {
 
     render() {
@@ -27,6 +29,20 @@ class App extends Component {
                         </div>
                     )}
                 </ProductControleContainer>
+
+                <MediaQuery>
+                    {({
+                        phablet,
+                        desktop,
+                        tablet
+                    }) => (
+                        <div>
+                            {phablet && <div> phablet breakpoint...</div>}
+                            {tablet && <div> tablet breakpoint...</div>}
+                            {desktop && <div>desktop... breakpoint...</div>}
+                        </div>
+                    )}
+                </MediaQuery>
 
                 <div className="lane">
                     <div className="card">
