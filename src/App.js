@@ -11,10 +11,14 @@ import MediaQuery from './utils/media-query';
 
 class App extends Component {
 
+    onChange = (event, params) =>  {
+        console.log(event, params);
+    };
+
     render() {
         return (
             <div>
-                <ProductControleContainer quantity={10}>
+                <ProductControleContainer onStateChange={this.onChange} quantity={10}>
                     {({
                         getPlusProps,
                         getMinProps,

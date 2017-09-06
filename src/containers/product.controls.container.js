@@ -5,7 +5,21 @@ export default class ProductControlsContainer extends Component {
 
     static PropTypes = {
         children: PropTypes.func,
-        quantity: PropTypes.number
+        quantity: PropTypes.number,
+        onStateChange: PropTypes.func
+    };
+
+    static stateChangeEvents = {
+        QUANTITY_INCREASED: 'quantity-increased',
+        QUANTITY_DECREASED: 'quantity-decreased',
+        QUANTITY_CHANGED: 'quantity-changed',
+        QUANTITY_SAVED: 'quantity-saved',
+        QUANTITY_ERROR: 'quantity-error',
+        DELETED_FROM_SHOPPINGLIST: '',
+    };
+
+    static defaultProps = {
+        onStateChange: () => {}
     };
 
     state = {
@@ -20,27 +34,54 @@ export default class ProductControlsContainer extends Component {
         this.state = this.getState();
     }
 
-    incrementQuantity(state) {
-        return {quantity: state.quantity + this.getQuantityToIncrement()};
-    }
+    incrementQuantity = (state) => {
+        return state.quantity + this.getQuantityToIncrement();
+    };
 
-    decrementQuantity(state) {
-        return {quantity: state.quantity - 1};
-    }
+    decrementQuantity = (state) => {
+        return state.quantity - 1;
+    };
 
     handlePlusEvent = () => {
-        this.setState(this.incrementQuantity, () => this.saveQuantity());
+        const incrementQuantity = this.handleQuantityMutation(this.incrementQuantity);
+        this.setState(incrementQuantity, () => this.saveQuantity());
     };
 
     handleMinEvent = () => {
         const newQuantity = this.state.quantity - 1;
 
         if (newQuantity) {
-            this.setState(this.decrementQuantity, () => this.saveQuantity());
+            const decrementQuantity = this.handleQuantityMutation(this.decrementQuantity);
+            this.setState(decrementQuantity, () => this.saveQuantity());
         } else {
             this.deleteFromShoppingList();
         }
     };
+
+    /**
+     * Handles quantity and sets it state
+     *
+     * @param action
+     * @returns {function(*=)}
+     */
+    handleQuantityMutation(action) {
+        return (prevState) => {
+            const quantity = action(prevState);
+            this.triggerQuantityDifferenceChange(quantity, prevState.quantity);
+
+            return {
+                quantity
+            }
+        };
+    }
+
+    triggerQuantityDifferenceChange(newQuantity, oldQuantity) {
+        if (newQuantity > oldQuantity) {
+            this.props.onStateChange(ProductControlsContainer.stateChangeEvents.QUANTITY_INCREASED, newQuantity);
+        } else {
+            this.props.onStateChange(ProductControlsContainer.stateChangeEvents.QUANTITY_DECREASED, newQuantity);
+        }
+    }
 
     getQuantityToIncrement() {
         return this.state.incrementAmount;
