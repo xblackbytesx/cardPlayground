@@ -15,11 +15,18 @@ export default class ProductControlsContainer extends Component {
         QUANTITY_CHANGED: 'quantity-changed',
         QUANTITY_SAVED: 'quantity-saved',
         QUANTITY_ERROR: 'quantity-error',
-        DELETED_FROM_SHOPPINGLIST: '',
+        DELETED_FROM_SHOPPINGLIST: 'deleted-from-shoppinglist',
     };
 
     static defaultProps = {
-        onStateChange: () => {}
+        onStateChange: () => {},
+        fetch: () => {
+            return new Promise(resolve => {
+                setTimeout(() => resolve({
+                    json: () => Promise.resolve({quantity: 11})
+                }), 500);
+            })
+        }
     };
 
     state = {
@@ -32,6 +39,10 @@ export default class ProductControlsContainer extends Component {
         super(...args);
 
         this.state = this.getState();
+    }
+
+    getQuantityToIncrement() {
+        return this.state.incrementAmount;
     }
 
     incrementQuantity = (state) => {
@@ -59,10 +70,10 @@ export default class ProductControlsContainer extends Component {
     };
 
     /**
-     * Handles quantity and sets it state
+     * Computes the next state
      *
-     * @param action
-     * @returns {function(*=)}
+     * @param action function that computes the new quantity
+     * @returns Object the new product quantity
      */
     handleQuantityMutation(action) {
         return (prevState) => {
@@ -75,6 +86,25 @@ export default class ProductControlsContainer extends Component {
         };
     }
 
+    handleSaveQuantitySuccess = (response) => {
+        const {quantity} = response;
+
+        if (quantity) {
+            this.props.onStateChange(ProductControlsContainer.stateChangeEvents.QUANTITY_SAVED, quantity);
+        } else {
+            this.props.onStateChange(ProductControlsContainer.stateChangeEvents.DELETED_FROM_SHOPPINGLIST);
+        }
+
+        this.setState({
+            quantity,
+            isSaving: false
+        });
+    };
+
+    handleSavenQuantityError = (error) => {
+        this.props.onStateChange(ProductControlsContainer.stateChangeEvents.QUANTITY_ERROR, error);
+    };
+
     triggerQuantityDifferenceChange(newQuantity, oldQuantity) {
         if (newQuantity > oldQuantity) {
             this.props.onStateChange(ProductControlsContainer.stateChangeEvents.QUANTITY_INCREASED, newQuantity);
@@ -83,26 +113,18 @@ export default class ProductControlsContainer extends Component {
         }
     }
 
-    getQuantityToIncrement() {
-        return this.state.incrementAmount;
-    }
-
     deleteFromShoppingList() {
         this.setState({quantity: 0});
-
-        console.log('deleted!');
+        this.props.onStateChange(ProductControlsContainer.stateChangeEvents.DELETED_FROM_SHOPPINGLIST);
     }
 
     saveQuantity() {
-        // this.setState({isSaving: true});
-        // console.log('=======> saving...');
+        this.setState({isSaving: true});
 
-        setTimeout(() => {
-            this.setState({isSaving: false});
-        }, 2000);
-        // return fetch().then(response => response.json())
-        //     .then()
-        //     .catch(err => console.log);
+        return this.props.fetch()
+            .then(response => response.json())
+            .then(this.handleSaveQuantitySuccess)
+            .catch(this.handleSavenQuantityError);
     }
 
     /**
